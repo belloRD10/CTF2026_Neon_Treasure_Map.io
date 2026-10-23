@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Neon QR Treasure Map — a playable 6x4 interlocking jigsaw puzzle. Rebuild the neon map, 24 tiles, three difficulty modes." />
+<meta name="theme-color" content="#08060f" />
+<title>Neon QR Treasure Map · Jigsaw Puzzle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2308060f'/%3E%3Crect x='6' y='6' width='8' height='8' fill='%23ff2fb3'/%3E%3Crect x='18' y='6' width='8' height='8' fill='%2322e6ff'/%3E%3Crect x='6' y='18' width='8' height='8' fill='%2322e6ff'/%3E%3Crect x='18' y='18' width='8' height='8' fill='%23ffb340'/%3E%3C/svg%3E" />
+</head>
+<body>
+
+<div class="bg-grid" aria-hidden="true"></div>
+<div class="bg-glow bg-glow--magenta" aria-hidden="true"></div>
+<div class="bg-glow bg-glow--cyan" aria-hidden="true"></div>
+<div class="scanlines" aria-hidden="true"></div>
+
+<div class="launcher" id="launcher" hidden>
+  <button class="btn btn--primary btn--lg" id="btnLaunch" type="button">▶ Open the puzzle</button>
+</div>
+
+<div class="modal" id="gameModal" role="dialog" aria-modal="true" aria-labelledby="gameTitle">
+  <div class="modal__panel">
+
+    <header class="modal__head">
+      <div class="modal__id">
+        <h1 class="modal__title" id="gameTitle">NEON TREASURE MAP</h1>
+        <p class="modal__sub">24 interlocking tiles · rebuild the map</p>
+      </div>
+      <div class="modal__tools">
+        <label class="select">
+          <span>MODE</span>
+          <select id="difficulty">
+            <option value="easy">Casual — 5 hints</option>
+            <option value="normal" selected>Treasure Hunter — 3</option>
+            <option value="hard">Cursed Vault — 1</option>
+          </select>
+        </label>
+        <button class="iconbtn" id="btnClose" type="button" aria-label="Close the puzzle">✕</button>
+      </div>
+    </header>
+
+    <div class="hud">
+      <div class="hud__stat">
+        <span class="hud__label">TIME</span>
+        <span class="hud__value" id="hudTime">--:--</span>
+      </div>
+      <div class="hud__stat">
+        <span class="hud__label">MOVES</span>
+        <span class="hud__value" id="hudMoves">0</span>
+      </div>
+      <div class="hud__stat">
+        <span class="hud__label">TILES SET</span>
+        <span class="hud__value" id="hudPlaced">0<em>/24</em></span>
+      </div>
+      <div class="hud__stat">
+        <span class="hud__label">SCORE</span>
+        <span class="hud__value hud__value--accent" id="hudScore">1000</span>
+      </div>
+      <div class="hud__stat hud__stat--wide">
+        <span class="hud__label">TRACKER</span>
+        <div class="progress"><div class="progress__bar" id="progressBar"></div></div>
+      </div>
+    </div>
+
+    <div class="stage" id="stage">
+      <canvas id="board" width="960" height="540" aria-label="Jigsaw puzzle board" role="img"></canvas>
+
+      <div class="stage__badge" id="stageBadge">ASSEMBLE THE MAP</div>
+    </div>
+
+    <div class="win" id="winOverlay" hidden>
+      <div class="win__flare">◈ MAP RESTORED ◈</div>
+      <div class="win__stars" id="winStars">★ ★ ★</div>
+      <div class="win__stats">
+        <div><span>TIME</span><b id="winTime">--:--</b></div>
+        <div><span>MOVES</span><b id="winMoves">0</b></div>
+        <div><span>HINTS</span><b id="winHints">0</b></div>
+        <div><span>SCORE</span><b id="winScore">0</b></div>
+      </div>
+      <div class="win__actions">
+        <button class="btn btn--primary btn--sm" id="btnWinRestart" type="button">↻ Play again</button>
+        <button class="btn btn--ghost btn--sm" id="btnWinClose" type="button">Close</button>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="controls__group">
+        <button class="btn btn--ghost btn--sm" id="btnShuffle" type="button">⟳ Reshuffle</button>
+        <button class="btn btn--ghost btn--sm" id="btnGhost" type="button">◐ Ghost map: ON</button>
+        <button class="btn btn--ghost btn--sm" id="btnSound" type="button">♪ Sound: ON</button>
+      </div>
+
+      <div class="controls__group controls__group--hints">
+        <span class="controls__title">HINTS</span>
+        <button class="btn btn--hint" id="btnHintPlace" type="button">▣ Place a tile <em>−120</em></button>
+        <button class="btn btn--hint" id="btnHintPeek" type="button">◉ Peek at the map <em>−60</em></button>
+        <button class="btn btn--hint" id="btnHintMark" type="button">◎ Mark a slot <em>−40</em></button>
+      </div>
+    </div>
+
+    <p class="tip" id="tipLine">
+      <b>TIP</b> — Tabs fit into sockets. Start with the four corner tiles: they only have one neighbour each.
+    </p>
+
+  </div>
+</div>
+
+<script src="js/geometry.js"></script>
+<script src="js/puzzle.js"></script>
+</body>
+</html>
